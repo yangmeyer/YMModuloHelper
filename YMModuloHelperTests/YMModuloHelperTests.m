@@ -61,4 +61,13 @@
 	STAssertEquals([modulo shortestDistanceBetween:1 and:1], (NSUInteger) 0, @"");
 }
 
+- (void)testNormalization {
+	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:10];
+	STAssertEquals([modulo normalizedIndex:0], (NSUInteger) 0, @"");
+	STAssertEquals([modulo normalizedIndex:3], (NSUInteger) 3, @"");
+	STAssertEquals([modulo normalizedIndex:10], (NSUInteger) 0, @"");
+	STAssertEquals([modulo normalizedIndex:15], (NSUInteger) 5, @"");
+	STAssertEquals([modulo normalizedIndex:27], (NSUInteger) 7, @"");
+}
+
 @end

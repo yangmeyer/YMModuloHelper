@@ -12,6 +12,10 @@
 
 @property (nonatomic, readonly) NSUInteger count;
 
+#pragma mark - Normalization
+
+- (NSUInteger)normalizedIndex:(NSUInteger)index;
+
 #pragma mark - Distance
 
 - (NSUInteger)clockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to;

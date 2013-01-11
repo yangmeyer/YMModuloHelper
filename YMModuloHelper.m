@@ -28,13 +28,22 @@
 	return [[self alloc] initWithCount:count];
 }
 
+#pragma mark - Normalization
+
+- (NSUInteger)normalizedIndex:(NSUInteger)index {
+    NSInteger result = index % (NSInteger)self.count;
+    if (result < 0) result += (NSInteger)self.count;
+	NSAssert(0 <= result && result < (NSInteger)self.count, @"Normalizing perspective failed");
+    return (NSUInteger)result;
+}
+
 #pragma mark - Distance
 
 - (NSUInteger)clockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to {
 	NSInteger naive = (NSInteger)to - (NSInteger)from;
 	return (naive < 0
-			? self.count + naive
-			: naive);
+			? self.count + (NSUInteger)naive
+			: (NSUInteger)naive);
 }
 
 - (NSUInteger)counterClockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to {
