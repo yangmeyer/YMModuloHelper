@@ -21,6 +21,7 @@
 		2F0F404C16A03A1400582D26 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F0F402D16A03A1300582D26 /* Foundation.framework */; };
 		2F0F405416A03A1400582D26 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2F0F405216A03A1400582D26 /* InfoPlist.strings */; };
 		2F0F405716A03A1400582D26 /* YMModuloHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F0F405616A03A1400582D26 /* YMModuloHelperTests.m */; };
+		2F0F406616A03FAA00582D26 /* YMModuloHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F0F406516A03FAA00582D26 /* YMModuloHelper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,8 @@
 		2F0F405316A03A1400582D26 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2F0F405516A03A1400582D26 /* YMModuloHelperTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YMModuloHelperTests.h; sourceTree = "<group>"; };
 		2F0F405616A03A1400582D26 /* YMModuloHelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YMModuloHelperTests.m; sourceTree = "<group>"; };
+		2F0F406416A03FAA00582D26 /* YMModuloHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YMModuloHelper.h; sourceTree = "<group>"; };
+		2F0F406516A03FAA00582D26 /* YMModuloHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YMModuloHelper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,8 +85,10 @@
 		2F0F401C16A03A1300582D26 = {
 			isa = PBXGroup;
 			children = (
-				2F0F403116A03A1300582D26 /* YMModuloHelper */,
+				2F0F406416A03FAA00582D26 /* YMModuloHelper.h */,
+				2F0F406516A03FAA00582D26 /* YMModuloHelper.m */,
 				2F0F404F16A03A1400582D26 /* YMModuloHelperTests */,
+				2F0F403116A03A1300582D26 /* YMModuloHelper */,
 				2F0F402A16A03A1300582D26 /* Frameworks */,
 				2F0F402816A03A1300582D26 /* Products */,
 			);
@@ -272,6 +277,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F0F405716A03A1400582D26 /* YMModuloHelperTests.m in Sources */,
+				2F0F406616A03FAA00582D26 /* YMModuloHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
