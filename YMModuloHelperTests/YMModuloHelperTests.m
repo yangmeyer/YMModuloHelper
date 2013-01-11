@@ -52,4 +52,13 @@
 	STAssertEquals([modulo shortestDistanceBetween:0 and:6], (NSUInteger) 6, @"");
 }
 
+- (void)testModulo2 {
+	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:2];
+	STAssertEquals([modulo clockwiseDistanceFrom:0 to:1], (NSUInteger) 1, @"");
+	STAssertEquals([modulo clockwiseDistanceFrom:1 to:0], (NSUInteger) 1, @"");
+	
+	STAssertEquals([modulo clockwiseDistanceFrom:1 to:1], (NSUInteger) 0, @"");
+	STAssertEquals([modulo shortestDistanceBetween:1 and:1], (NSUInteger) 0, @"");
+}
+
 @end

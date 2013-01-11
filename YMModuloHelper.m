@@ -12,6 +12,7 @@
 @implementation YMModuloHelper
 
 - (instancetype)initWithCount:(NSUInteger)count {
+	NSParameterAssert(count >= 2);
 	self = [super init];
 	if (self) {
 		self.count = count;
