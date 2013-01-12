@@ -70,4 +70,42 @@
 	STAssertEquals([modulo normalizedIndex:27], (NSUInteger) 7, @"");
 }
 
+- (void)testEnumeration {
+	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:12];
+	
+	NSMutableArray *indexes = [NSMutableArray arrayWithCapacity:modulo.count*2];
+	[modulo enumerateIndexesOnShortestPathFrom:2 through:6 withBlock:^(NSUInteger idx) {
+		[indexes addObject:@(idx)];
+	}];
+	STAssertEqualObjects([indexes componentsJoinedByString:@","], @"2,3,4,5,6", @"");
+}
+
+- (void)testEnumerationWithDistanceZero {
+	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:12];
+	
+	NSMutableArray *indexes = [NSMutableArray arrayWithCapacity:modulo.count*2];
+	[modulo enumerateIndexesOnShortestPathFrom:2 through:2 withBlock:^(NSUInteger idx) {
+		[indexes addObject:@(idx)];
+	}];
+	STAssertEqualObjects([indexes componentsJoinedByString:@","], @"2", @"");
+}
+
+- (void)testEnumerationWithDistanceOne {
+	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:12];
+	
+	// clockwise
+	NSMutableArray *indexes = [NSMutableArray arrayWithCapacity:modulo.count*2];
+	[modulo enumerateIndexesOnShortestPathFrom:2 through:3 withBlock:^(NSUInteger idx) {
+		[indexes addObject:@(idx)];
+	}];
+	STAssertEqualObjects([indexes componentsJoinedByString:@","], @"2,3", @"");
+	
+	// counter-clockwise
+	indexes = [NSMutableArray arrayWithCapacity:modulo.count*2];
+	[modulo enumerateIndexesOnShortestPathFrom:3 through:2 withBlock:^(NSUInteger idx) {
+		[indexes addObject:@(idx)];
+	}];
+	STAssertEqualObjects([indexes componentsJoinedByString:@","], @"3,2", @"");
+}
+
 @end

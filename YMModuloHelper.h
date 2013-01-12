@@ -14,12 +14,16 @@
 
 #pragma mark - Normalization
 
-- (NSUInteger)normalizedIndex:(NSUInteger)index;
+- (NSUInteger)normalizedIndex:(NSInteger)index;
 
 #pragma mark - Distance
 
 - (NSUInteger)clockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to;
 - (NSUInteger)counterClockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to;
 - (NSUInteger)shortestDistanceBetween:(NSUInteger)from and:(NSUInteger)to;
+
+#pragma mark - Iteration
+
+- (void)enumerateIndexesOnShortestPathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(void (^)(NSUInteger idx))block;
 
 @end

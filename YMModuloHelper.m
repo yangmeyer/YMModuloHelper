@@ -30,7 +30,7 @@
 
 #pragma mark - Normalization
 
-- (NSUInteger)normalizedIndex:(NSUInteger)index {
+- (NSUInteger)normalizedIndex:(NSInteger)index {
     NSInteger result = index % (NSInteger)self.count;
     if (result < 0) result += (NSInteger)self.count;
 	NSAssert(0 <= result && result < (NSInteger)self.count, @"Normalizing perspective failed");
@@ -52,6 +52,30 @@
 
 - (NSUInteger)shortestDistanceBetween:(NSUInteger)from and:(NSUInteger)to {
 	return (NSUInteger) MIN([self clockwiseDistanceFrom:from to:to], [self counterClockwiseDistanceFrom:from to:to]);
+}
+
+#pragma mark - Iteration
+
+- (void)enumerateIndexesOnShortestPathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(void (^)(NSUInteger idx))block {
+	NSUInteger distanceCW = [self clockwiseDistanceFrom:from to:to];
+	NSUInteger distanceCCW = [self counterClockwiseDistanceFrom:from to:to];
+	
+	if (from == to) {
+		block(from);
+		return;
+	}
+	
+	NSInteger i = from;
+	do {
+		block([self normalizedIndex:i]);
+		if (distanceCW < distanceCCW) {
+			i++;
+		} else {
+			i--;
+		}
+	} while ([self shortestDistanceBetween:i and:to] != (NSUInteger) 0);
+	
+	block(to);
 }
 
 @end
