@@ -22,6 +22,9 @@
 - (NSUInteger)counterClockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to;
 - (NSUInteger)shortestDistanceBetween:(NSUInteger)from and:(NSUInteger)to;
 
+// returns one of the indexes in the candidate set with the minimal distance to the `from` index.
+- (NSUInteger)nearestIndexFrom:(NSUInteger)from candidates:(NSIndexSet *)candidateSet;
+
 #pragma mark - Iteration
 
 - (void)enumerateIndexesOnShortestPathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(void (^)(NSUInteger idx))block;

@@ -54,6 +54,26 @@
 	return (NSUInteger) MIN([self clockwiseDistanceFrom:from to:to], [self counterClockwiseDistanceFrom:from to:to]);
 }
 
+- (NSUInteger)nearestIndexFrom:(NSUInteger)from candidates:(NSIndexSet *)candidateSet {
+	NSParameterAssert([candidateSet count] > 0);
+	
+	// pathological shortcut
+	if ([candidateSet containsIndex:from])
+		return from;
+	
+	// iterate over all candidates
+	__block NSUInteger nearestIndex = NSNotFound;
+	__block NSUInteger shortestDistance = self.count / 2;
+	[candidateSet enumerateIndexesUsingBlock:^(NSUInteger toIndex, BOOL *stop) {
+		NSUInteger distance = [self shortestDistanceBetween:from and:toIndex];
+		if (distance <= shortestDistance) {
+			shortestDistance = distance;
+			nearestIndex = toIndex;
+		}
+	}];
+	return nearestIndex;
+}
+
 #pragma mark - Iteration
 
 - (void)enumerateIndexesOnShortestPathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(void (^)(NSUInteger idx))block {

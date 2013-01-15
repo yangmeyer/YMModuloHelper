@@ -108,4 +108,26 @@
 	STAssertEqualObjects([indexes componentsJoinedByString:@","], @"3,2", @"");
 }
 
+- (void)testNearestIndex {
+	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:12];
+	
+	NSMutableIndexSet *candidates = [NSMutableIndexSet indexSetWithIndex:10];
+	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 10, @"Opposite can very well be nearest!");
+	
+	[candidates addIndex:11];
+	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 11, @"Counter-clockwise crossing zero");
+	
+	[candidates addIndex:0];
+	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 0, @"Zero can be nearest");
+	
+	[candidates addIndex:2];
+	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 2, @"Simple counter-clockwise");
+	
+	[candidates addIndex:5];
+	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 5, @"Simple clockwise");
+	
+	[candidates addIndex:4];
+	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 4, @"Already there!");
+}
+
 @end
