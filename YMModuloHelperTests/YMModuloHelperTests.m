@@ -108,26 +108,61 @@
 	STAssertEqualObjects([indexes componentsJoinedByString:@","], @"3,2", @"");
 }
 
+#pragma mark - Nearest
+
+- (void)testNearestClockwiseIndex {
+	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:12];
+	
+	NSMutableIndexSet *candidates = [NSMutableIndexSet indexSetWithIndex:10];
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates clockwiseFrom:4], (NSUInteger) 10, @"Opposite can very well be nearest!");
+	
+	[candidates addIndex:0];
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates clockwiseFrom:4], (NSUInteger) 10, @"Zero is nearer than 10, but only counter-clockwise");
+	
+	[candidates addIndex:5];
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates clockwiseFrom:4], (NSUInteger) 5, @"Simple clockwise");
+	
+	[candidates addIndex:4];
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates clockwiseFrom:4], (NSUInteger) 4, @"Already there!");
+}
+
+
+- (void)testNearestCounterClockwiseIndex {
+	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:12];
+	
+	NSMutableIndexSet *candidates = [NSMutableIndexSet indexSetWithIndex:5];
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates counterClockwiseFrom:4], (NSUInteger) 5, @"The 'clockwise-next' index has the maximum distance but still can be the nearest");
+	
+	[candidates addIndex:10];
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates counterClockwiseFrom:4], (NSUInteger) 10, @"Opposite can very well be nearest!");
+	
+	[candidates addIndex:3];
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates counterClockwiseFrom:4], (NSUInteger) 3, @"Simple counter-clockwise");
+	
+	[candidates addIndex:4];
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates counterClockwiseFrom:4], (NSUInteger) 4, @"Already there!");
+}
+
 - (void)testNearestIndex {
 	YMModuloHelper *modulo = [YMModuloHelper moduloHelperWithCount:12];
 	
 	NSMutableIndexSet *candidates = [NSMutableIndexSet indexSetWithIndex:10];
-	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 10, @"Opposite can very well be nearest!");
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates from:4], (NSUInteger) 10, @"Opposite can very well be nearest!");
 	
 	[candidates addIndex:11];
-	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 11, @"Counter-clockwise crossing zero");
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates from:4], (NSUInteger) 11, @"Counter-clockwise crossing zero");
 	
 	[candidates addIndex:0];
-	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 0, @"Zero can be nearest");
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates from:4], (NSUInteger) 0, @"Zero can be nearest");
 	
 	[candidates addIndex:2];
-	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 2, @"Simple counter-clockwise");
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates from:4], (NSUInteger) 2, @"Simple counter-clockwise");
 	
 	[candidates addIndex:5];
-	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 5, @"Simple clockwise");
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates from:4], (NSUInteger) 5, @"Simple clockwise");
 	
 	[candidates addIndex:4];
-	STAssertEquals([modulo nearestIndexFrom:4 candidates:candidates], (NSUInteger) 4, @"Already there!");
+	STAssertEquals([modulo nearestIndexOfCandidates:candidates from:4], (NSUInteger) 4, @"Already there!");
 }
 
 @end

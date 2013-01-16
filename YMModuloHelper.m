@@ -54,7 +54,48 @@
 	return (NSUInteger) MIN([self clockwiseDistanceFrom:from to:to], [self counterClockwiseDistanceFrom:from to:to]);
 }
 
-- (NSUInteger)nearestIndexFrom:(NSUInteger)from candidates:(NSIndexSet *)candidateSet {
+#pragma mark - Nearest
+
+- (NSUInteger)nearestIndexOfCandidates:(NSIndexSet *)candidateSet clockwiseFrom:(NSUInteger)from  {
+	NSParameterAssert([candidateSet count] > 0);
+	
+	// pathological shortcut
+	if ([candidateSet containsIndex:from])
+		return from;
+	
+	// iterate clockwise, check inclusion in candidateSet
+	__block NSUInteger result = NSNotFound;
+	// implementation note: because we can't stop enumerating once we've found a candidate index, we actually iterate counter-clockwise so that the LAST candidate index to match counter-clockwise is the clockwise-nearest.
+	NSUInteger end = [self normalizedIndex:(NSInteger)from + 1];
+	[self enumerateIndexesOnCounterClockwisePathFrom:from through:end withBlock:^(NSUInteger idx) {
+		if ([candidateSet containsIndex:idx]) {
+			result = idx;
+		}
+	}];
+	return result;
+}
+
+
+- (NSUInteger)nearestIndexOfCandidates:(NSIndexSet *)candidateSet counterClockwiseFrom:(NSUInteger)from {
+	NSParameterAssert([candidateSet count] > 0);
+	
+	// pathological shortcut
+	if ([candidateSet containsIndex:from])
+		return from;
+	
+	// iterate clockwise, check inclusion in candidateSet
+	__block NSUInteger result = NSNotFound;
+	// implementation note: see above - vice versa!
+	NSUInteger end = [self normalizedIndex:(NSInteger)from - 1];
+	[self enumerateIndexesOnClockwisePathFrom:from through:end withBlock:^(NSUInteger idx) {
+		if ([candidateSet containsIndex:idx]) {
+			result = idx;
+		}
+	}];
+	return result;
+}
+
+- (NSUInteger)nearestIndexOfCandidates:(NSIndexSet *)candidateSet from:(NSUInteger)from {
 	NSParameterAssert([candidateSet count] > 0);
 	
 	// pathological shortcut
@@ -76,26 +117,38 @@
 
 #pragma mark - Iteration
 
-- (void)enumerateIndexesOnShortestPathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(void (^)(NSUInteger idx))block {
-	NSUInteger distanceCW = [self clockwiseDistanceFrom:from to:to];
-	NSUInteger distanceCCW = [self counterClockwiseDistanceFrom:from to:to];
-	
+- (void)enumerateIndexesOnClockwisePathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block {
+	// pathological shortcut
 	if (from == to) {
 		block(from);
 		return;
 	}
 	
-	NSInteger i = from;
-	do {
+	for (NSInteger i = from; [self clockwiseDistanceFrom:i to:to] != (NSUInteger) 0; i++) {
 		block([self normalizedIndex:i]);
-		if (distanceCW < distanceCCW) {
-			i++;
-		} else {
-			i--;
-		}
-	} while ([self shortestDistanceBetween:i and:to] != (NSUInteger) 0);
-	
+	}
 	block(to);
+}
+
+- (void)enumerateIndexesOnCounterClockwisePathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block {
+	// pathological shortcut
+	if (from == to) {
+		block(from);
+		return;
+	}
+	
+	for (NSInteger i = from; [self counterClockwiseDistanceFrom:i to:to] != (NSUInteger) 0; i--) {
+		block([self normalizedIndex:i]);
+	}
+	block(to);
+}
+
+- (void)enumerateIndexesOnShortestPathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block {
+	if ([self clockwiseDistanceFrom:from to:to] < [self counterClockwiseDistanceFrom:from to:to]) {
+		[self enumerateIndexesOnClockwisePathFrom:from through:to withBlock:block];
+	} else {
+		[self enumerateIndexesOnCounterClockwisePathFrom:from through:to withBlock:block];
+	}
 }
 
 @end
