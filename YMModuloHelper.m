@@ -39,19 +39,25 @@
 
 #pragma mark - Distance
 
-- (NSUInteger)clockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to {
+- (NSUInteger)_clockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to {
 	NSInteger naive = (NSInteger)to - (NSInteger)from;
 	return (naive < 0
 			? self.count + (NSUInteger)naive
 			: (NSUInteger)naive);
 }
 
-- (NSUInteger)counterClockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to {
-	return [self clockwiseDistanceFrom:to to:from];
-}
-
-- (NSUInteger)shortestDistanceBetween:(NSUInteger)from and:(NSUInteger)to {
-	return (NSUInteger) MIN([self clockwiseDistanceFrom:from to:to], [self counterClockwiseDistanceFrom:from to:to]);
+- (NSUInteger)distanceFrom:(NSUInteger)from to:(NSUInteger)to direction:(YMModuloDirection)direction {
+	if (direction == YMModuloDirectionClockwise) {
+		return [self _clockwiseDistanceFrom:from to:to];
+	} else if (direction == YMModuloDirectionCounterClockwise) {
+		return [self _clockwiseDistanceFrom:to to:from];
+	} else if (direction == YMModuloDirectionShortest) {
+		return (NSUInteger) MIN([self _clockwiseDistanceFrom:from to:to],
+								[self _clockwiseDistanceFrom:to to:from]);
+	} else {
+		NSAssert(NO, @"Invalid modulo direction");
+		return NSNotFound;
+	}
 }
 
 #pragma mark - Nearest
@@ -67,14 +73,13 @@
 	__block NSUInteger result = NSNotFound;
 	// implementation note: because we can't stop enumerating once we've found a candidate index, we actually iterate counter-clockwise so that the LAST candidate index to match counter-clockwise is the clockwise-nearest.
 	NSUInteger end = [self normalizedIndex:(NSInteger)from + 1];
-	[self enumerateIndexesOnCounterClockwisePathFrom:from through:end withBlock:^(NSUInteger idx) {
+	[self enumerateIndexesFrom:from through:end withBlock:^(NSUInteger idx) {
 		if ([candidateSet containsIndex:idx]) {
 			result = idx;
 		}
-	}];
+	} direction:YMModuloDirectionCounterClockwise];
 	return result;
 }
-
 
 - (NSUInteger)nearestIndexOfCandidates:(NSIndexSet *)candidateSet counterClockwiseFrom:(NSUInteger)from {
 	NSParameterAssert([candidateSet count] > 0);
@@ -87,11 +92,11 @@
 	__block NSUInteger result = NSNotFound;
 	// implementation note: see above - vice versa!
 	NSUInteger end = [self normalizedIndex:(NSInteger)from - 1];
-	[self enumerateIndexesOnClockwisePathFrom:from through:end withBlock:^(NSUInteger idx) {
+	[self enumerateIndexesFrom:from through:end withBlock:^(NSUInteger idx) {
 		if ([candidateSet containsIndex:idx]) {
 			result = idx;
 		}
-	}];
+	} direction:YMModuloDirectionClockwise];
 	return result;
 }
 
@@ -106,7 +111,7 @@
 	__block NSUInteger nearestIndex = NSNotFound;
 	__block NSUInteger shortestDistance = self.count / 2;
 	[candidateSet enumerateIndexesUsingBlock:^(NSUInteger toIndex, BOOL *stop) {
-		NSUInteger distance = [self shortestDistanceBetween:from and:toIndex];
+		NSUInteger distance = [self distanceFrom:from to:toIndex direction:YMModuloDirectionShortest];
 		if (distance <= shortestDistance) {
 			shortestDistance = distance;
 			nearestIndex = toIndex;
@@ -117,38 +122,47 @@
 
 #pragma mark - Iteration
 
-- (void)enumerateIndexesOnClockwisePathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block {
+- (void)enumerateIndexesFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block direction:(YMModuloDirection)direction {
 	// pathological shortcut
 	if (from == to) {
 		block(from);
 		return;
 	}
 	
-	for (NSInteger i = from; [self clockwiseDistanceFrom:i to:to] != (NSUInteger) 0; i++) {
-		block([self normalizedIndex:i]);
-	}
-	block(to);
-}
-
-- (void)enumerateIndexesOnCounterClockwisePathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block {
-	// pathological shortcut
-	if (from == to) {
-		block(from);
-		return;
+	YMModuloDirection directionToUse = direction;
+	if (directionToUse == YMModuloDirectionShortest) {
+		directionToUse = ([self distanceFrom:from to:to direction:YMModuloDirectionClockwise]
+						  < [self distanceFrom:from to:to direction:YMModuloDirectionCounterClockwise]
+						  ? YMModuloDirectionClockwise
+						  : YMModuloDirectionCounterClockwise);
 	}
 	
-	for (NSInteger i = from; [self counterClockwiseDistanceFrom:i to:to] != (NSUInteger) 0; i--) {
+	for (NSInteger i = from; [self distanceFrom:i to:to direction:directionToUse] != (NSUInteger) 0; (directionToUse == YMModuloDirectionClockwise ? i++ : i--)) {
 		block([self normalizedIndex:i]);
 	}
 	block(to);
 }
 
-- (void)enumerateIndexesOnShortestPathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block {
-	if ([self clockwiseDistanceFrom:from to:to] < [self counterClockwiseDistanceFrom:from to:to]) {
-		[self enumerateIndexesOnClockwisePathFrom:from through:to withBlock:block];
-	} else {
-		[self enumerateIndexesOnCounterClockwisePathFrom:from through:to withBlock:block];
-	}
+#pragma mark - Deprecated
+
+- (NSUInteger)clockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to __deprecated {
+	return [self _clockwiseDistanceFrom:from to:to];
+}
+- (NSUInteger)counterClockwiseDistanceFrom:(NSUInteger)from to:(NSUInteger)to __deprecated {
+	return [self _clockwiseDistanceFrom:to to:from];
+}
+- (NSUInteger)shortestDistanceBetween:(NSUInteger)from and:(NSUInteger)to __deprecated {
+	return (NSUInteger) MIN([self _clockwiseDistanceFrom:from to:to], [self counterClockwiseDistanceFrom:from to:to]);
+}
+
+- (void)enumerateIndexesOnClockwisePathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block __deprecated {
+	[self enumerateIndexesFrom:from through:to withBlock:block direction:YMModuloDirectionClockwise];
+}
+- (void)enumerateIndexesOnCounterClockwisePathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block __deprecated {
+	[self enumerateIndexesFrom:from through:to withBlock:block direction:YMModuloDirectionCounterClockwise];
+}
+- (void)enumerateIndexesOnShortestPathFrom:(NSUInteger)from through:(NSUInteger)to withBlock:(YMIndexEnumerationBlock)block __deprecated {
+	[self enumerateIndexesFrom:from through:to withBlock:block direction:YMModuloDirectionShortest];
 }
 
 @end
